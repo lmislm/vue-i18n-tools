@@ -95,6 +95,10 @@
 import axios from "axios";
 import vueCodeString from "../service/vueCodeString.ts";
 import { markString, interpolationMark } from "../service/common";
+
+const NAMESPACESTR = "."; // namespaceStr
+const QUOTESMARK = '"'; // template中的quotes引号风格
+
 function getKeyName(...str) {
   str = str
     .filter((str) => str)
@@ -104,7 +108,7 @@ function getKeyName(...str) {
   return str
     .slice(0, 3)
     .map((name) => name.toLowerCase())
-    .join("_");
+    .join(NAMESPACESTR);
 }
 
 export default {
@@ -261,7 +265,8 @@ export default {
 
           keyArr.push([key, word.word]);
 
-          let quotationMarks = "'";
+          let quotationMarks = QUOTESMARK;
+          // let quotationMarks = "'";
           let t = "$t";
           if (word.replaceType === "vue-attr" && "'" === word.quotationMarks) {
             quotationMarks = '"';
