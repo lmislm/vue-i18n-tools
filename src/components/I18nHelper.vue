@@ -2,26 +2,28 @@
   <div class="main">
     <template v-if="keyCode">
       <el-row :gutter="16">
-        <el-col span="12">
+        <el-col :span="12">
           <pre class="content" v-html="resultCode"></pre>
         </el-col>
-        <el-col span="12">
-          <pre class="content">{{keyCode}}</pre>
+        <el-col :span="12">
+          <pre class="content">{{ keyCode }}</pre>
         </el-col>
       </el-row>
       <el-row>
-        <el-button type="danger" style="width:100%;" @click="goback2">返回</el-button>
+        <el-button type="danger" style="width: 100%" @click="goback2"
+          >返回</el-button
+        >
       </el-row>
     </template>
     <template v-else-if="findWordArr.length > 0">
-      <el-input v-model="pageName"
+      <el-input v-model="pageName" size="mini"
         ><span slot="prepend">页面namespace</span></el-input
       >
       <el-row :gutter="16">
-        <el-col span="12">
+        <el-col :span="12">
           <pre class="result" v-html="showReplaceCodeHTML" key="result"></pre>
         </el-col>
-        <el-col span="12">
+        <el-col :span="12">
           <ul class="word-list">
             <li
               class="word-list-item"
@@ -33,6 +35,7 @@
               >
               <p class="word-list-item-key">
                 <el-input
+                  size="small"
                   v-if="word.used"
                   @focus="focus(word.index)"
                   @blur="blur(word.index)"
@@ -45,15 +48,15 @@
         </el-col>
       </el-row>
       <el-row :gutter="16">
-        <el-col span="12">
+        <el-col :span="12">
           <el-button type="danger" @click="goback" style="width: 100%"
             >返回</el-button
           >
         </el-col>
-        <!-- <el-col span="8">
+        <!-- <el-col :span="8">
           <el-button @click="getKey"> 生成未完成的KEY </el-button>
         </el-col> -->
-        <el-col span="12">
+        <el-col :span="12">
           <el-tooltip
             effect="dark"
             v-if="!replaceDisable"
@@ -421,7 +424,7 @@ export default {
 .main >>> .heightlight.active {
   text-shadow: 0 0 1px #ffa606;
   animation: hue 2s infinite linear;
-  background: #DCDFE6;
+  background: #dcdfe6;
 }
 @keyframes hue {
   10% {
