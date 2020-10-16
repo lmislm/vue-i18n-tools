@@ -6,7 +6,12 @@
           <pre class="content" v-html="resultCode"></pre>
         </el-col>
         <el-col :span="12">
-          <pre class="content">{{ keyCode }}</pre>
+          <pre class="content" v-if="!pageName">{{ keyCode }}</pre>
+          <pre
+            class="content"
+            v-else
+            v-html="JSON.stringify(keyCode, null, 2)"
+          ></pre>
         </el-col>
       </el-row>
       <el-row>
@@ -130,32 +135,13 @@ export default {
       }
       let code = this.findWordArr.reduce((replaceCode, findWord, index) => {
         if (!findWord.used) {
-          if (
-            replaceCode.indexOf(
-              `${markString[0]}${findWord.index}${interpolationMark[0]}`
-            ) > -1
-          ) {
-            let start = replaceCode.indexOf(
-                `${markString[0]}${findWord.index}${interpolationMark[0]}`
-              ),
-              end =
-                replaceCode.indexOf(
-                  `${interpolationMark[1]}${findWord.index}${markString[1]}`
-                ) +
-                `${markString[1]}${findWord.index}${interpolationMark[1]}`
-                  .length;
-
-            return (
-              replaceCode.substr(0, start) +
-              findWord.originalCode +
-              replaceCode.substr(end)
-            );
-          } else {
-            return replaceCode.replace(
-              markString[0] + findWord.index + markString[1],
-              findWord.originalCode
-            );
-          }
+          return this.replaceNouseCode(
+            replaceCode,
+            findWord,
+            index,
+            markString,
+            interpolationMark
+          );
         } else {
           replaceCode = replaceCode.replace(
             markString[0] + findWord.index + markString[1],
@@ -235,33 +221,17 @@ export default {
 
       this.resultCode = this.findWordArr.reduce((replaceCode, word, index) => {
         if (!word.used) {
-          if (
-            replaceCode.indexOf(
-              `${markString[0]}${word.index}${interpolationMark[0]}`
-            ) > -1
-          ) {
-            let start = replaceCode.indexOf(
-                `${markString[0]}${word.index}${interpolationMark[0]}`
-              ),
-              end =
-                replaceCode.indexOf(
-                  `${interpolationMark[1]}${word.index}${markString[1]}`
-                ) +
-                `${markString[1]}${word.index}${interpolationMark[1]}`.length;
-
-            return (
-              replaceCode.substr(0, start) +
-              word.originalCode +
-              replaceCode.substr(end)
-            );
-          } else {
-            return replaceCode.replace(
-              markString[0] + word.index + markString[1],
-              word.originalCode
-            );
-          }
+          return this.replaceNouseCode(
+            replaceCode,
+            findWord,
+            index,
+            markString,
+            interpolationMark
+          );
         } else {
-          let key = getKeyName(this.pageName || "", word.key);
+          // remove pageName prefix
+          // let key = getKeyName(this.pageName || "", word.key);
+          let key = word.key;
 
           keyArr.push([key, word.word]);
 
@@ -275,14 +245,18 @@ export default {
             t = "this.$t";
           }
 
+          const replaceStr = this.pageName
+            ? this.pageName + NAMESPACESTR + word.key
+            : word.key;
+
           return replaceCode
             .replace(
               `${markString[0]}${index}${markString[1]}`,
-              `<span class="heightlight">${t}(${quotationMarks}${word.key}${quotationMarks})</span>`
+              `<span class="heightlight">${t}(${quotationMarks}${replaceStr}${quotationMarks})</span>`
             )
             .replace(
               `${markString[0]}${index}${interpolationMark[0]}`,
-              `<span class="heightlight">${t}(${quotationMarks}${word.key}${quotationMarks}, [</span>`
+              `<span class="heightlight">${t}(${quotationMarks}${replaceStr}${quotationMarks}, [</span>`
             )
             .replace(
               `${interpolationMark[1]}${index}${interpolationMark[0]}`,
@@ -295,9 +269,53 @@ export default {
         }
       }, html);
 
-      this.keyCode = keyArr
-        .map(([key, value]) => `"${key}": "${value.replace(/[\n]/g, "")}"`)
-        .join(",\n    ");
+      const fromEntries = (arr) => {
+        const mapData = new Map(arr);
+        const obj = {};
+        for (let [key, value] of mapData) {
+          obj[key] = value;
+        }
+        return obj;
+      };
+      if (this.pageName) {
+        this.keyCode = { [this.pageName]: fromEntries(keyArr) };
+      } else {
+        this.keyCode = fromEntries(keyArr);
+      }
+    },
+
+    replaceNouseCode(
+      replaceCode,
+      findWord,
+      index,
+      markString,
+      interpolationMark
+    ) {
+      if (
+        replaceCode.indexOf(
+          `${markString[0]}${findWord.index}${interpolationMark[0]}`
+        ) > -1
+      ) {
+        let start = replaceCode.indexOf(
+            `${markString[0]}${findWord.index}${interpolationMark[0]}`
+          ),
+          end =
+            replaceCode.indexOf(
+              `${interpolationMark[1]}${findWord.index}${markString[1]}`
+            ) +
+            `${markString[1]}${findWord.index}${interpolationMark[1]}`.length;
+
+        return (
+          replaceCode.substr(0, start) +
+          findWord.originalCode +
+          replaceCode.substr(end)
+        );
+      } else {
+        return replaceCode.replace(
+          markString[0] + findWord.index + markString[1],
+          findWord.originalCode
+        );
+      }
     },
     goback2() {
       this.keyCode = "";
