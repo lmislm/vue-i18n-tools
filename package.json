@@ -15,6 +15,7 @@
     "@babel/parser": "^7.1.6",
     "axios": "^0.18.0",
     "babel-standalone": "^6.26.0",
+    "element-ui": "^2.13.2",
     "express": "^4.16.4",
     "he": "^1.2.0",
     "iview": "^3.1.4",

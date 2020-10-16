@@ -1,155 +1,91 @@
 <template>
-    <div class="main">
-        <template v-if="keyCode">
-            <Row  :gutter="16">
-                <Col span="12">
-<pre class="content" v-html="resultCode"></pre>
-                </Col>
-                <Col span="12">
-<pre class="content">{
-    {{keyCode}}
-}</pre>
-                </Col>
-            </Row>
-                <Button long type="error" @click="goback2">
-                    返回
-                </Button>
-            </Row>
-        </template>
-        <template v-else-if="findWordArr.length > 0">
-            <Input v-model='pageName'>
-                <span slot="prepend">页面namespace</span>
-            </Input>
-            <Row  :gutter="16">
-                <Col span="12">
-<pre class="result" v-html="showReplaceCodeHTML" key="result"></pre>
-                </Col>
-                <Col span="12">
-                    <ul class="word-list">
-                        <li class="word-list-item" v-for="word in findWordArr" :key="word.index">
-                            <Checkbox v-model="word.used" >{{word.index + 1}}. {{word.word}}</Checkbox>
-                            <p class="word-list-item-key">
-                                <Input v-if="word.used" @on-focus="focus(word.index)" 
-                                    @on-blur="blur(word.index)" placeholder="请输入该国际化文本的key" v-model="word.key" />
-                            </p>
-                        </li>
-                    </ul>
-                </Col>
-            </Row>
-            <Row  :gutter="16">
-                <Col span="12">
-                    <Button long type="error" @click="goback">
-                        返回
-                    </Button>
-                </Col>
-                <!-- <Col span="8">
-                    <Button long @click="getKey">
-                        生成未完成的KEY
-                    </Button>
-                </Col> -->
-                <Col span="12">
-                    <Tooltip content="请输入所有国际化文本的key" v-if="!replaceDisable" style="width: 100%;">
-                        <Button :disabled="true" long type="primary">
-                            替换
-                        </Button>
-                    </Tooltip>
-                    <Button v-else long type="primary" @click="replace">
-                        替换
-                    </Button>
-                </Col>
-            </Row>
-        </template>
-        <template v-else>
-            <div class="inputCode">
-                <textarea placeholder="输入要提取国际化的页面代码" class="content" rows="40" cols="100" v-model="code"></textarea>
-                <Button type="primary" @click="analyse" long>寻找中文字符</Button>
+  <div class="main">
+    <template v-if="keyCode">
+      <el-row :gutter="16">
+        <el-col span="12">
+          <pre class="content" v-html="resultCode"></pre>
+        </el-col>
+        <el-col span="12">
+          <pre class="content">{{keyCode}}</pre>
+        </el-col>
+      </el-row>
+      <el-row>
+        <el-button type="danger" style="width:100%;" @click="goback2">返回</el-button>
+      </el-row>
+    </template>
+    <template v-else-if="findWordArr.length > 0">
+      <el-input v-model="pageName"
+        ><span slot="prepend">页面namespace</span></el-input
+      >
+      <el-row :gutter="16">
+        <el-col span="12">
+          <pre class="result" v-html="showReplaceCodeHTML" key="result"></pre>
+        </el-col>
+        <el-col span="12">
+          <ul class="word-list">
+            <li
+              class="word-list-item"
+              v-for="word in findWordArr"
+              :key="word.index"
+            >
+              <el-checkbox v-model="word.used"
+                >{{ word.index + 1 }}. {{ word.word }}</el-checkbox
+              >
+              <p class="word-list-item-key">
+                <el-input
+                  v-if="word.used"
+                  @focus="focus(word.index)"
+                  @blur="blur(word.index)"
+                  placeholder="请输入该国际化文本的key"
+                  v-model="word.key"
+                />
+              </p>
+            </li>
+          </ul>
+        </el-col>
+      </el-row>
+      <el-row :gutter="16">
+        <el-col span="12">
+          <el-button type="danger" @click="goback" style="width: 100%"
+            >返回</el-button
+          >
+        </el-col>
+        <!-- <el-col span="8">
+          <el-button @click="getKey"> 生成未完成的KEY </el-button>
+        </el-col> -->
+        <el-col span="12">
+          <el-tooltip
+            effect="dark"
+            v-if="!replaceDisable"
+            content="请输入所有国际化文本的key"
+            placement="top"
+          >
+            <div>
+              <el-button :disabled="true" style="width: 100%" type="primary">
+                替换
+              </el-button>
             </div>
-        </template>
-    </div>
+          </el-tooltip>
+          <el-button v-else style="width: 100%" type="primary" @click="replace"
+            >替换</el-button
+          >
+        </el-col>
+      </el-row>
+    </template>
+    <template v-else>
+      <div class="inputCode">
+        <el-input
+          type="textarea"
+          placeholder="输入要提取国际化的页面代码"
+          class="content"
+          rows="40"
+          v-model="code"
+        ></el-input>
+        <el-button type="primary" @click="analyse">寻找中文字符</el-button>
+      </div>
+    </template>
+  </div>
 </template>
-<style scoped>
-.main {
-  padding: 10px;
-  width: calc(100vw - 20px);
-  height: calc(100vh - 52px);
-  box-sizing: border-box;
-  margin: 0 auto;
-}
-.main button {
-  padding: 5px;
-  cursor: pointer;
-}
-.inputCode {
-  display: flex;
-  flex-direction: column;
-}
-.inputPageName {
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  padding: 5px 0;
-}
-
-.layout {
-  display: flex;
-}
-.content {
-  height: calc(100vh - 42px - 65px);
-  padding: 5px;
-  margin: 5px 0;
-  border: 1px solid #dcdee2;
-  border-radius: 5px;
-  overflow: auto;
-  text-align: left;
-}
-.result {
-  height: calc(100vh - 42px - 100px);
-  padding: 5px;
-  margin: 5px 0;
-  border: 1px solid #dcdee2;
-  border-radius: 5px;
-  overflow: auto;
-  text-align: left;
-}
-.word-list {
-  list-style: none;
-  height: calc(100vh - 42px - 100px);
-  padding: 5px;
-  margin: 5px 0;
-  border: 1px solid #dcdee2;
-  border-radius: 5px;
-  overflow: auto;
-}
-.word-list li {
-  list-style: none;
-  justify-content: flex-start;
-  display: flex;
-  flex-wrap: wrap;
-  margin-bottom: 15px;
-}
-.word-list-item-key {
-  width: 100%;
-}
-.main >>> .heightlight {
-  color: red;
-  font-weight: bold;
-}
-.main >>> .heightlight.active {
-  text-shadow: 0 0 1px #ffa606;
-  animation: hue 2s infinite linear;
-}
-@keyframes hue {
-  10% {
-    color: red;
-  }
-  50% {
-    color: #ffa606;
-  }
-  90% {
-    color: red;
-  }
-}
-</style>
 <script>
 import axios from "axios";
 import vueCodeString from "../service/vueCodeString.ts";
@@ -414,3 +350,88 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.main {
+  padding: 10px;
+  width: calc(100vw - 20px);
+  height: calc(100vh - 52px);
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+.main button {
+  padding: 5px;
+  cursor: pointer;
+}
+.inputCode {
+  display: flex;
+  flex-direction: column;
+}
+.inputPageName {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 5px 0;
+}
+
+.layout {
+  display: flex;
+}
+.content {
+  height: calc(100vh - 42px - 65px);
+  padding: 5px;
+  margin: 5px 0;
+  border: 1px solid #dcdee2;
+  border-radius: 5px;
+  overflow: auto;
+  text-align: left;
+}
+.result {
+  height: calc(100vh - 42px - 100px);
+  padding: 5px;
+  margin: 5px 0;
+  border: 1px solid #dcdee2;
+  border-radius: 5px;
+  overflow: auto;
+  text-align: left;
+}
+.word-list {
+  list-style: none;
+  height: calc(100vh - 42px - 100px);
+  padding: 5px;
+  margin: 5px 0;
+  border: 1px solid #dcdee2;
+  border-radius: 5px;
+  overflow: auto;
+}
+.word-list li {
+  list-style: none;
+  justify-content: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+.word-list-item-key {
+  width: 100%;
+}
+.main >>> .heightlight {
+  color: red;
+  font-weight: bold;
+}
+.main >>> .heightlight.active {
+  text-shadow: 0 0 1px #ffa606;
+  animation: hue 2s infinite linear;
+  background: #DCDFE6;
+}
+@keyframes hue {
+  10% {
+    color: red;
+  }
+  50% {
+    color: #ffa606;
+  }
+  90% {
+    color: red;
+  }
+}
+</style>
