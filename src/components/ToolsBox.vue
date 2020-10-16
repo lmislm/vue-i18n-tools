@@ -6,6 +6,7 @@
       round
       @click="handleOpen"
       icon="el-icon-question"
+      style="user-select: none"
       >查看readme</el-button
     >
   </div>

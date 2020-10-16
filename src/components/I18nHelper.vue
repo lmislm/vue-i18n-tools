@@ -16,9 +16,11 @@
       </el-row>
     </template>
     <template v-else-if="findWordArr.length > 0">
-      <el-input v-model="pageName" size="mini"
-        ><span slot="prepend">页面namespace</span></el-input
-      >
+      <div style="user-select: none">
+        <el-input v-model="pageName" size="small"
+          ><span slot="prepend">页面namespace</span></el-input
+        >
+      </div>
       <el-row :gutter="16">
         <el-col :span="12">
           <pre class="result" v-html="showReplaceCodeHTML" key="result"></pre>
