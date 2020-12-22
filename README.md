@@ -45,3 +45,6 @@
 *   增加一个cli工具
 
 
+## dev-ops
+
+`git subtree push --prefix docs origin gh-pages`
